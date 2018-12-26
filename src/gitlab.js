@@ -171,30 +171,7 @@ export default class VerdaccioGitLab implements IPluginAuth {
 
   allow_publish(user: RemoteUser, _package: VerdaccioGitlabPackageAccess, cb: Callback) {
     if (!_package.gitlab) return cb(null, false);
-
-    let packageScopePermit = false;
-    let packagePermit = false;
-    // Only allow to publish packages when:
-    //  - the package has exactly the same name as one of the user groups, or
-    //  - the package scope is the same as one of the user groups
-    for (let real_group of user.real_groups) { // jscs:ignore requireCamelCaseOrUpperCaseIdentifiers
-      this.logger.trace(`[gitlab] publish: checking group: ${real_group} for user: ${user.name || ''} and package: ${_package.name}`);
-
-      if (this._matchGroupWithPackage(real_group, _package.name)) {
-        packagePermit = true;
-        break;
-      }
-    }
-
-    if (packagePermit || packageScopePermit) {
-      const perm = packagePermit ? 'package-name' : 'package-scope';
-      this.logger.debug(`[gitlab] user: ${user.name || ''} allowed to publish package: ${_package.name} based on ${perm}`);
-      return cb(null, true);
-    } else {
-      this.logger.debug(`[gitlab] user: ${user.name || ''} denied from publishing package: ${_package.name}`);
-      const missingPerm = _package.name.indexOf('@') === 0 ? 'package-scope' : 'package-name';
-      return cb(httperror[403](`must have required permissions: ${this.config.publish || ''} at ${missingPerm}`));
-    }
+    return cb(null, true);
   }
 
   _matchGroupWithPackage(real_group: string, package_name: string): boolean {
